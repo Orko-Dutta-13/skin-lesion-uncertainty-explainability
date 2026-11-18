@@ -79,16 +79,19 @@ def extract_features(model: torch.nn.Module, df: pd.DataFrame, size: int, device
     finally:
         h.remove()
     return {"emb": np.concatenate(emb), "logits": np.concatenate(logits), "stats": np.concatenate(stats),
-            "labels": df["label"].to_numpy(int), "images": df["image"].to_numpy()}
+            "labels": df["label"].to_numpy(int), "images": df["image"].to_numpy().astype(str)}
 
 
 def load_or_extract(ckpt: Path, model, cfg, df: pd.DataFrame, tag: str, split: str, device, recompute: bool,
                     num_workers: int) -> dict:
     f = ckpt.parent / f"features_{tag}_{split}.npz"
     if f.exists() and not recompute:
-        z = np.load(f, allow_pickle=True)
-        d = {k: z[k] for k in z.files}
-        if list(d["images"]) == df["image"].tolist():
+        try:
+            z = np.load(f, allow_pickle=False)
+            d = {k: z[k] for k in z.files}
+        except ValueError:  # cache written by an older version (pickled object array): recompute
+            d = None
+        if d is not None and list(d["images"]) == df["image"].tolist():
             return d
     print(f"extracting features for {tag}={split} ({len(df)} images) ...")
     d = extract_features(model, df, cfg["data"]["image_size"], device, num_workers=num_workers)

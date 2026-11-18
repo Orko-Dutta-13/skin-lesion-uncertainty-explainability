@@ -35,7 +35,7 @@ def predict_logits(model, loader, device, amp: bool = False) -> tuple[np.ndarray
 def load_checkpoint(path: str, device: torch.device):
     from reliable_derm.models import build_model
 
-    ck = torch.load(path, map_location=device, weights_only=False)
+    ck = torch.load(path, map_location=device, weights_only=True)
     cfg = ck["config"]
     model = build_model(cfg["model"]["arch"], len(ck["classes"]), pretrained=False,
                         dropout=cfg["model"]["dropout"])
