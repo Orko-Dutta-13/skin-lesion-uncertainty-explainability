@@ -7,7 +7,7 @@ A random image-level split puts near-duplicate views of one lesion into both tra
 and test, which inflates every metric you report. We therefore split by *group*
 (lesion), stratified by diagnosis.
 
-Limitation (state it in the write-up): ISIC 2019 has no patient identifier, so the
+Limitation: ISIC 2019 has no patient identifier, so the
 closest available unit is the lesion. Different lesions of one patient can still land
 in different splits. Images without a lesion_id are treated as singleton groups.
 """

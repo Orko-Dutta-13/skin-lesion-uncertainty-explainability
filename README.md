@@ -18,7 +18,7 @@ and label-free drift monitoring. All runs are tracked with MLflow and the pipeli
 | Is the model calibrated? | Over-confident (ECE 0.063 ± 0.008). Temperature scaling, fitted on validation only, brings it to **0.020 ± 0.008**. A 3-seed ensemble is already calibrated (ECE 0.015). |
 | Which uncertainty method ranks errors best? | The 3-seed ensemble: AURC 0.089 vs 0.111 for a single model (seed SD about 0.006); MC Dropout 0.107 (within noise of single). |
 | Does abstention make it safe? | Not by itself. At 80 % coverage, 24 to 29 % of melanomas are still kept but not called melanoma. |
-| What happens under a source shift? | Balanced accuracy drops from 0.70 to **0.35** (ensemble, HAM+MSK to BCN). Roughly half of that drop (about 0.19) looks attributable to the source shift itself and the rest to BCN simply being a harder set (a model trained with BCN only reaches 0.53 to 0.56 there). This split is an estimate from an imperfectly matched reference, see Limitations. Temperature scaling fitted on in-distribution data does not transfer (ECE 0.131 on BCN). |
+| What happens under a source shift? | Balanced accuracy drops from 0.70 to **0.35** (3-seed ensemble; single model 0.68 to 0.34; HAM+MSK to BCN). Roughly half of that drop (about 0.19) looks attributable to the source shift itself and the rest to BCN simply being a harder set (a model trained with BCN only reaches 0.53 to 0.56 there). This split is an estimate from an imperfectly matched reference, see Limitations. Temperature scaling fitted on in-distribution data does not transfer (ECE 0.131 on BCN). |
 | Can the model's own uncertainty flag the shift? | Weakly (AUROC 0.67 to 0.69). Simple image statistics separate the sources much better (AUROC 0.92 to 0.94), and Evidently flags 94 to 100 % of monitored columns on BCN with 0 % on a control. |
 | Are the explanations trustworthy? | Grad-CAM passes a weight-randomisation sanity check; Grad-CAM and SHAP agree only moderately (mean Spearman 0.44). They are model explanations, not clinical evidence. |
 
@@ -140,7 +140,7 @@ reliable_derm/   data/ (prepare, splits), train, evaluate, calibration, mc_dropo
 configs/         baseline.yaml, shift.yaml
 tests/           unit tests (leakage, metrics, uncertainty, explanations, shift, drift)
 reports/         NOTES.md (full log), result tables
-docs/            DATA.md, ROADMAP.md, figures/
+docs/            DATA.md, ROADMAP.md (future work), figures/
 ```
 
 ## License

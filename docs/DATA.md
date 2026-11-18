@@ -31,17 +31,17 @@ data (`.gitignore` already excludes it) and attribute it as below.
 ISIC 2019 training = HAM10000 (Vienna) + BCN20000 (Barcelona) + MSK. Eight classes:
 MEL, NV, BCC, AK, BKL, DF, VASC, SCC (the 9th "unknown" class exists only in the challenge test set).
 
-## Two things this repo does that you must be able to explain
+## Design choices: grouping and source inference
 
-**Grouping key.** The metadata provides a common lesion identifier but no patient ID. We group by
-`lesion_id` (several images per lesion exist, notably in HAM10000) and treat images with a missing
-`lesion_id` as singleton groups. So the split is *lesion-level*, not patient-level. Say that in the
-write-up. The prepare step prints the share of images without a lesion_id: check it and report it.
+**Grouping key.** The metadata provides a common lesion identifier but no patient ID. Images are grouped by
+`lesion_id` (several images per lesion exist, notably in HAM10000) and images with a missing `lesion_id` are treated
+as singleton groups, so the split is *lesion-level*, not patient-level. In the ISIC 2019 training set 8.23 % of images
+have no `lesion_id`; the prepare step prints this share.
 
-**Source inference.** The CSVs do not say which hospital an image came from. We infer it from the
-original pixel size: 600x450 = HAM10000, 1024x1024 = BCN20000, anything else = MSK/other. This is a
-heuristic. Check the printed source counts look sensible (three non-trivial groups) and say it is a
-heuristic. It powers the `split_shift` protocol (train on HAM+MSK, test on BCN).
+**Source inference.** The CSVs do not say which hospital an image came from, so it is inferred from the original pixel
+size: 600x450 = HAM10000, 1024x1024 = BCN20000, anything else = MSK/other. This is a heuristic; it gives 10,015 HAM,
+12,414 BCN and 2,902 MSK/other images, and agrees with the `lesion_id` prefixes (all HAM images and 12,413 of 12,414 BCN
+images). It defines the source-shift protocol `split_ood` (train, validation and test on HAM+MSK, shift test on BCN).
 
 ## Citations (required by the CC BY-NC 4.0 licence)
 

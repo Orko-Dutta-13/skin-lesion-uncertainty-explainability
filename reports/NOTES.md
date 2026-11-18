@@ -45,7 +45,7 @@ about 33 s/epoch on an RTX 3070 Laptop GPU. Seeds: 42 (`runs/baseline`), 1, 2.
 - Heat mostly on the lesion; no obvious ruler/hair/border shortcut in these samples. Not a systematic audit.
 - Errors look like lesion-level confusions. Some are confidently wrong (SCC predicted as BKL at 0.98, AK as BCC at 0.92).
 - Limits: 7 x 7 final feature map is coarse; many maps are centred blobs (lesions are centred anyway).
-- TODO: sanity check with a randomised-weights model; check black circular border vs source.
+- The randomised-weights sanity check is in Step 2.3. Not yet checked: whether the black circular border (more common in some sources) drives the maps (see Future work).
 
 ## Step 2.1: temperature scaling (done)
 T fitted on val logits only, applied unchanged to test. Predictions and balanced accuracy are identical before/after.
@@ -58,7 +58,7 @@ T fitted on val logits only, applied unchanged to test. Predictions and balanced
 | mean ± SD | 1.343 ± 0.013 | 0.0633 ± 0.0082 -> **0.0205 ± 0.0080** | 0.7566 -> 0.7288 | 0.3790 -> 0.3720 |
 
 - Macro AUROC 0.9379 -> 0.9386 (essentially unchanged). Reliability diagram: `docs/figures/reliability_baseline.png`.
-- Model is over-confident (T > 1). The weighted loss also shapes calibration; mention in the write-up.
+- Model is over-confident (T > 1). The class-weighted loss also shapes calibration.
 
 ## Step 2.2: MC Dropout, ensemble, selective prediction (done)
 MC Dropout = Dropout + 16 StochasticDepth layers kept random at test time, BatchNorm in eval, 20 passes. Ensemble = mean of the 3 seeds (free deep ensemble). Test set, mean ± SD over 3 runs (ensemble = one model, no SD).
@@ -135,10 +135,10 @@ Protocol `split_ood` (data/splits.py `add_ood_split`): train/val/test = HAM + MS
 - Caveats: Evidently's default thresholds flag any systematic difference once n = 1800, so "flagged" does not mean "accuracy will drop by X". Drift tells you that the data changed, not how much performance suffers. One model, one source pair, one random reference sample (seed 0).
 
 ## Step 3.4: Docker (done)
-`docker build -t reliable-derm .` (python:3.11-slim, CPU torch) then `docker run --rm reliable-derm` runs `make smoke-all` (fake data: prepare, train, evaluate, Grad-CAM, calibration, MC Dropout, selective, shift split, shift eval, drift) end to end without error on the user's Windows laptop, 2026-11-18. Smoke numbers are meaningless (284 fake images, 2 epochs).
+`docker build -t reliable-derm .` (python:3.11-slim, CPU torch) then `docker run --rm reliable-derm` runs `make smoke-all` (fake data: prepare, train, evaluate, Grad-CAM, calibration, MC Dropout, selective, shift split, shift eval, drift) end to end without error on a Windows machine (Docker Desktop), 2026-11-18. A fresh clone of the GitHub repo also passes `make smoke-all` and all 73 unit tests. Smoke numbers are meaningless (284 fake images, 2 epochs).
 
-## Open items
-- 2.2 ablation: head-only MC Dropout (`--mode head`) vs full.
+## Future work
+- Head-only MC Dropout (`--mode head`) vs the full stochastic mode.
 - Bootstrap confidence intervals for per-class metrics (DF, VASC, SCC).
-- Shift: class mix handled by reweighting (metrics) and class-matched sampling (drift); BCN also appears harder than a fair reference (see 3.2). Not done: other source pairs, drift on a model trained on all sources.
-- Step 4: README results + figures, CV bullet, cover-letter paragraph, first git commit.
+- Check whether the black circular border drives Grad-CAM / SHAP maps; SHAP randomisation check.
+- Shift: class mix is handled by reweighting (metrics) and class-matched sampling (drift), and BCN also appears harder than a fair reference (see 3.2). Not done: other source pairs, drift on a model trained on all sources.
