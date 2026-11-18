@@ -1,5 +1,7 @@
 # Reliable Diagnosis Support: Explainability and Uncertainty for Skin-Lesion Classification
 
+[![tests](https://github.com/Orko-Dutta-13/skin-lesion-uncertainty-explainability/actions/workflows/tests.yml/badge.svg)](https://github.com/Orko-Dutta-13/skin-lesion-uncertainty-explainability/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/code%20license-MIT-blue.svg)](LICENSE)
+
 An EfficientNet-B0 classifier for 8-class dermoscopy (ISIC 2019), built around one question:
 **when can the model be trusted?** The project combines leakage-safe evaluation, Grad-CAM and SHAP
 explanations (with sanity checks), calibrated uncertainty, a measured source shift (HAM10000+MSK to BCN20000)
@@ -140,6 +142,9 @@ tests/           unit tests (leakage, metrics, uncertainty, explanations, shift,
 reports/         NOTES.md (full log), result tables
 docs/            DATA.md, ROADMAP.md, figures/
 ```
+
+## License
+The code is released under the MIT License (`LICENSE`). The ISIC 2019 data is not covered by it: it is CC BY-NC 4.0 (non-commercial) and is not included in this repository.
 
 ## Data and attribution
 Trained and evaluated on the ISIC 2019 training data (CC BY-NC 4.0, non-commercial use). The data is
