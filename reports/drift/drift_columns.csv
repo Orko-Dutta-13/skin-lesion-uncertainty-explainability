@@ -1,0 +1,55 @@
+scenario,column,method,score,threshold,drift_strength,drifted,group
+control (ID test),brightness,Wasserstein distance (normed),0.051865396428047654,0.1,0.051865396428047654,False,image statistics
+control (ID test),contrast,Wasserstein distance (normed),0.08780582714404558,0.1,0.08780582714404558,False,image statistics
+control (ID test),saturation,Wasserstein distance (normed),0.04446106475136142,0.1,0.04446106475136142,False,image statistics
+control (ID test),sharpness,Wasserstein distance (normed),0.0573393242442375,0.1,0.0573393242442375,False,image statistics
+control (ID test),dark_share,Wasserstein distance (normed),0.06565301001204203,0.1,0.06565301001204203,False,image statistics
+control (ID test),mean_r,Wasserstein distance (normed),0.027081029780705826,0.1,0.027081029780705826,False,image statistics
+control (ID test),mean_g,Wasserstein distance (normed),0.062270840272290635,0.1,0.062270840272290635,False,image statistics
+control (ID test),mean_b,Wasserstein distance (normed),0.0431050524666482,0.1,0.0431050524666482,False,image statistics
+control (ID test),emb_pc1,Wasserstein distance (normed),0.029381034913174925,0.1,0.029381034913174925,False,embedding
+control (ID test),emb_pc2,Wasserstein distance (normed),0.04113972933591137,0.1,0.04113972933591137,False,embedding
+control (ID test),emb_pc3,Wasserstein distance (normed),0.05762214083495264,0.1,0.05762214083495264,False,embedding
+control (ID test),emb_pc4,Wasserstein distance (normed),0.04411370164367268,0.1,0.04411370164367268,False,embedding
+control (ID test),emb_pc5,Wasserstein distance (normed),0.061406515211451934,0.1,0.061406515211451934,False,embedding
+control (ID test),emb_pc6,Wasserstein distance (normed),0.053751532452306114,0.1,0.053751532452306114,False,embedding
+control (ID test),emb_pc7,Wasserstein distance (normed),0.04961130064785397,0.1,0.04961130064785397,False,embedding
+control (ID test),emb_pc8,Wasserstein distance (normed),0.04870336830226009,0.1,0.04870336830226009,False,embedding
+control (ID test),max_prob,Wasserstein distance (normed),0.06410591267532846,0.1,0.06410591267532846,False,model output
+control (ID test),entropy,Wasserstein distance (normed),0.06157124968265103,0.1,0.06157124968265103,False,model output
+shift (BCN),brightness,Wasserstein distance (normed),1.0109877378942402,0.1,1.0109877378942402,True,image statistics
+shift (BCN),contrast,Wasserstein distance (normed),1.3958620898085232,0.1,1.3958620898085232,True,image statistics
+shift (BCN),saturation,Wasserstein distance (normed),1.0889403564626545,0.1,1.0889403564626545,True,image statistics
+shift (BCN),sharpness,Wasserstein distance (normed),0.15769312817910747,0.1,0.15769312817910747,True,image statistics
+shift (BCN),dark_share,Wasserstein distance (normed),9.088499116511564,0.1,9.088499116511564,True,image statistics
+shift (BCN),mean_r,Wasserstein distance (normed),1.7624629537177134,0.1,1.7624629537177134,True,image statistics
+shift (BCN),mean_g,Wasserstein distance (normed),0.43257733687856387,0.1,0.43257733687856387,True,image statistics
+shift (BCN),mean_b,Wasserstein distance (normed),0.6687349898548577,0.1,0.6687349898548577,True,image statistics
+shift (BCN),emb_pc1,Wasserstein distance (normed),0.5664839521739728,0.1,0.5664839521739728,True,embedding
+shift (BCN),emb_pc2,Wasserstein distance (normed),0.14460925574043176,0.1,0.14460925574043176,True,embedding
+shift (BCN),emb_pc3,Wasserstein distance (normed),0.44558840298550495,0.1,0.44558840298550495,True,embedding
+shift (BCN),emb_pc4,Wasserstein distance (normed),0.18930771925162176,0.1,0.18930771925162176,True,embedding
+shift (BCN),emb_pc5,Wasserstein distance (normed),0.0887131011483363,0.1,0.0887131011483363,False,embedding
+shift (BCN),emb_pc6,Wasserstein distance (normed),0.2649792070591622,0.1,0.2649792070591622,True,embedding
+shift (BCN),emb_pc7,Wasserstein distance (normed),0.18817309415096875,0.1,0.18817309415096875,True,embedding
+shift (BCN),emb_pc8,Wasserstein distance (normed),0.5450469651345464,0.1,0.5450469651345464,True,embedding
+shift (BCN),max_prob,Wasserstein distance (normed),0.6122482762629866,0.1,0.6122482762629866,True,model output
+shift (BCN),entropy,Wasserstein distance (normed),0.690511217325313,0.1,0.690511217325313,True,model output
+"shift, class-matched (BCN)",brightness,Wasserstein distance (normed),0.7260818138628378,0.1,0.7260818138628378,True,image statistics
+"shift, class-matched (BCN)",contrast,Wasserstein distance (normed),1.3724332380858664,0.1,1.3724332380858664,True,image statistics
+"shift, class-matched (BCN)",saturation,Wasserstein distance (normed),1.1497445881421293,0.1,1.1497445881421293,True,image statistics
+"shift, class-matched (BCN)",sharpness,Wasserstein distance (normed),0.2184632217848989,0.1,0.2184632217848989,True,image statistics
+"shift, class-matched (BCN)",dark_share,Wasserstein distance (normed),7.256463759630334,0.1,7.256463759630334,True,image statistics
+"shift, class-matched (BCN)",mean_r,Wasserstein distance (normed),1.5766170264150683,0.1,1.5766170264150683,True,image statistics
+"shift, class-matched (BCN)",mean_g,Wasserstein distance (normed),0.30385194476982824,0.1,0.30385194476982824,True,image statistics
+"shift, class-matched (BCN)",mean_b,Wasserstein distance (normed),0.4735907206557326,0.1,0.4735907206557326,True,image statistics
+"shift, class-matched (BCN)",emb_pc1,Wasserstein distance (normed),0.4094517160627931,0.1,0.4094517160627931,True,embedding
+"shift, class-matched (BCN)",emb_pc2,Wasserstein distance (normed),0.1837122759410808,0.1,0.1837122759410808,True,embedding
+"shift, class-matched (BCN)",emb_pc3,Wasserstein distance (normed),0.6082854557406003,0.1,0.6082854557406003,True,embedding
+"shift, class-matched (BCN)",emb_pc4,Wasserstein distance (normed),0.3547470644841223,0.1,0.3547470644841223,True,embedding
+"shift, class-matched (BCN)",emb_pc5,Wasserstein distance (normed),0.14122846747697015,0.1,0.14122846747697015,True,embedding
+"shift, class-matched (BCN)",emb_pc6,Wasserstein distance (normed),0.15477662376869614,0.1,0.15477662376869614,True,embedding
+"shift, class-matched (BCN)",emb_pc7,Wasserstein distance (normed),0.3293551951592697,0.1,0.3293551951592697,True,embedding
+"shift, class-matched (BCN)",emb_pc8,Wasserstein distance (normed),0.49022991173637726,0.1,0.49022991173637726,True,embedding
+"shift, class-matched (BCN)",max_prob,Wasserstein distance (normed),0.3732011086769403,0.1,0.3732011086769403,True,model output
+"shift, class-matched (BCN)",entropy,Wasserstein distance (normed),0.41741029615253383,0.1,0.41741029615253383,True,model output

@@ -1,0 +1,6 @@
+method,score,detection_auroc,sd
+single+TS,maxprob,0.6547975274734291,0.05254079428253282
+single+TS,entropy,0.6665134094076804,0.06626349348140254
+ensemble+TS,maxprob,0.6688835369592081,
+ensemble+TS,entropy,0.6915222235307601,
+ensemble+TS,mutual_info,0.6793589526224698,

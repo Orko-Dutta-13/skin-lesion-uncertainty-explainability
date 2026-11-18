@@ -1,0 +1,23 @@
+# data & artefacts never go to GitHub (ISIC 2019 is CC BY-NC; also huge)
+data/raw/
+data/processed/
+runs/
+mlruns/
+mlflow.db
+reports/*.csv
+__pycache__/
+*.pt
+*.pyc
+.venv/
+.ipynb_checkpoints/
+
+# Evidently HTML reports are several MB each
+reports/drift/*.html
+
+# fake-data smoke outputs
+data/synthetic_raw/
+data/synthetic_processed/
+reports/smoke/
+
+# large original; README uses the _small version
+docs/figures/shap_gradcam_baseline.png

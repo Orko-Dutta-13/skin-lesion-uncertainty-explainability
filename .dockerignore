@@ -1,0 +1,14 @@
+.git
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+data/raw
+data/processed
+data/synthetic_raw
+data/synthetic_processed
+runs
+mlruns
+mlflow.db
+reports/**/*.html
+*.pt

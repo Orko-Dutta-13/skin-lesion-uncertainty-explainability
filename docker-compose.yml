@@ -1,0 +1,18 @@
+# docker compose run --rm smoke     # whole pipeline on fake data
+# docker compose run --rm test      # unit tests
+# docker compose up mlflow          # MLflow UI on http://localhost:5000 (reads ./mlflow.db written by training)
+# The project folder is mounted at /app, so data/, runs/ and reports/ persist on your machine.
+services:
+  smoke:
+    build: .
+    volumes: [".:/app"]
+    command: ["make", "smoke-all"]
+  test:
+    build: .
+    volumes: [".:/app"]
+    command: ["make", "test"]
+  mlflow:
+    build: .
+    volumes: [".:/app"]
+    ports: ["5000:5000"]
+    command: ["mlflow", "ui", "--backend-store-uri", "sqlite:///mlflow.db", "--host", "0.0.0.0", "--port", "5000"]

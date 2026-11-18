@@ -1,0 +1,15 @@
+{
+  "ensemble+TS_BA_ID": [
+    0.659528663668108,
+    0.7476421698351415
+  ],
+  "ensemble+TS_BA_shift": [
+    0.3326130076615262,
+    0.36442412835435656
+  ],
+  "ensemble+TS_BA_change": [
+    -0.40326801008625707,
+    -0.3084842220954118
+  ],
+  "note": "image-level bootstrap; images of one lesion are correlated so these intervals are too narrow"
+}

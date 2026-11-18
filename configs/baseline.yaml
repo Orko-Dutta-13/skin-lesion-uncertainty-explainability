@@ -1,0 +1,28 @@
+seed: 42
+out_dir: runs/baseline
+
+data:
+  master_csv: data/processed/master.csv
+  split_col: split          # split = grouped (leakage-safe) | split_naive = image-level (leaky, for the ablation)
+  image_size: 224
+  num_workers: 4
+  # limit_per_split: 64     # smoke-test only
+
+model:
+  arch: efficientnet_b0     # efficientnet_b0 | resnet50
+  pretrained: true
+  dropout: 0.3
+
+train:
+  epochs: 15
+  batch_size: 64
+  lr: 3.0e-4
+  weight_decay: 1.0e-4
+  warmup_epochs: 1
+  imbalance: weighted_loss  # weighted_loss | none
+  amp: true
+  patience: 5
+
+mlflow:
+  experiment: reliable-derm
+  tracking_uri: sqlite:///mlflow.db   # file-store (./mlruns) is deprecated in current MLflow
