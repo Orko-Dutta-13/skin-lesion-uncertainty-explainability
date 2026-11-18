@@ -10,13 +10,13 @@ and label-free drift monitoring. All runs are tracked with MLflow and the pipeli
 
 ## Key findings
 
-| Question | Answer (test set, 3 seeds unless noted) |
+| Question | Answer (test set; 3 seeds unless noted; the leakage ablation is a single run) |
 |---|---|
 | How much does a naive split inflate results? | Balanced accuracy 0.814 on a random image split vs **0.604 ± 0.013** on a lesion-grouped split (about +0.21). 57.9 % of naive-split test images share a lesion with a training image; 0 % with grouping. |
 | Is the model calibrated? | Over-confident (ECE 0.063 ± 0.008). Temperature scaling, fitted on validation only, brings it to **0.020 ± 0.008**. A 3-seed ensemble is already calibrated (ECE 0.015). |
-| Which uncertainty method ranks errors best? | The 3-seed ensemble: AURC 0.089 vs 0.110 ± 0.006 for a single model; MC Dropout 0.107 (within noise of single). |
+| Which uncertainty method ranks errors best? | The 3-seed ensemble: AURC 0.089 vs 0.111 for a single model (seed SD about 0.006); MC Dropout 0.107 (within noise of single). |
 | Does abstention make it safe? | Not by itself. At 80 % coverage, 24 to 29 % of melanomas are still kept but not called melanoma. |
-| What happens under a source shift? | Balanced accuracy drops from 0.70 to **0.35** (ensemble, HAM+MSK to BCN). About 0.19 of the drop is attributable to the shift, the rest to BCN being a harder set (see below). Temperature scaling fitted on in-distribution data does not transfer (ECE 0.131 on BCN). |
+| What happens under a source shift? | Balanced accuracy drops from 0.70 to **0.35** (ensemble, HAM+MSK to BCN). Roughly half of that drop (about 0.19) looks attributable to the source shift itself and the rest to BCN simply being a harder set (a model trained with BCN only reaches 0.53 to 0.56 there). This split is an estimate from an imperfectly matched reference, see Limitations. Temperature scaling fitted on in-distribution data does not transfer (ECE 0.131 on BCN). |
 | Can the model's own uncertainty flag the shift? | Weakly (AUROC 0.67 to 0.69). Simple image statistics separate the sources much better (AUROC 0.92 to 0.94), and Evidently flags 94 to 100 % of monitored columns on BCN with 0 % on a control. |
 | Are the explanations trustworthy? | Grad-CAM passes a weight-randomisation sanity check; Grad-CAM and SHAP agree only moderately (mean Spearman 0.44). They are model explanations, not clinical evidence. |
 
@@ -33,7 +33,7 @@ and label-free drift monitoring. All runs are tracked with MLflow and the pipeli
   A reference model trained with BCN data shows how hard BCN is in itself.
 - **Metrics.** Balanced accuracy and macro AUROC (imbalance); ECE, NLL, Brier (calibration); AURC / E-AURC and
   coverage curves (selective prediction). The test split is touched only for final configurations.
-- **Seeds.** Everything is repeated with 3 seeds; tables show mean ± sample SD.
+- **Seeds.** Training is repeated with 3 seeds and tables show mean ± sample SD. Exceptions: the leakage ablation is one run, and the Grad-CAM/SHAP checks and the drift monitor use one model (seed 42).
 
 ## Results
 
@@ -113,7 +113,7 @@ pip install -r requirements.txt
 make test            # unit tests
 make smoke-all       # everything on fake data
 # real data: see docs/DATA.md, then
-make data split-ood train train-shift eval-shift shift drift
+make data train eval-test calibration mc selective train-shift eval-shift shift drift   # train* run 3 seeds each
 ```
 Windows (no `make`), in an activated virtual environment, CUDA build of PyTorch installed first (pytorch.org):
 ```bat
