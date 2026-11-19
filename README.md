@@ -20,6 +20,7 @@ and label-free drift monitoring. All runs are tracked with MLflow and the pipeli
 | Does abstention make it safe? | Not by itself. At 80 % coverage, 24 to 29 % of melanomas are still kept but not called melanoma. |
 | What happens under a source shift? | Balanced accuracy drops from 0.70 to **0.35** (3-seed ensemble; single model 0.68 to 0.34; HAM+MSK to BCN). Roughly half of that drop (about 0.19) looks attributable to the source shift itself and the rest to BCN simply being a harder set (a model trained with BCN only reaches 0.53 to 0.56 there). This split is an estimate from an imperfectly matched reference, see Limitations. Temperature scaling fitted on in-distribution data does not transfer (ECE 0.131 on BCN). |
 | Can the model's own uncertainty flag the shift? | Weakly (AUROC 0.67 to 0.69). Simple image statistics separate the sources much better (AUROC 0.92 to 0.94), and Evidently flags 94 to 100 % of monitored columns on BCN with 0 % on a control. |
+| Can a detector flag new-source images one by one, without seeing them in training? | Partly. A kNN distance on the embeddings, fitted on in-distribution training images only, reaches AUROC **0.83 ± 0.04**, vs 0.65 to 0.68 for max-softmax, entropy and energy. It is still not a usable gate: 61 % of in-distribution images are flagged when 95 % of BCN images are. A domain classifier that has seen BCN reaches 0.94. |
 | Are the explanations trustworthy? | Grad-CAM passes a weight-randomisation sanity check; Grad-CAM and SHAP agree only moderately (mean Spearman 0.44). They are model explanations, not clinical evidence. |
 
 ## Evaluation protocol
@@ -101,6 +102,27 @@ reference = 1,800 in-distribution validation images.
 BCN images are on average darker and less red (mean R about 0.65 vs 0.80). The cause (camera, lighting, skin tone or
 resize/crop on different image sizes) was not established.
 
+### Out-of-distribution detection (per image)
+![OOD detection](docs/figures/ood_overview.png)
+
+Six detectors, all fitted on in-distribution (HAM+MSK) training images only and never shown a BCN image. The score of each
+image is compared between in-distribution test images (re-weighted to the BCN class mix) and BCN images. AUROC, mean ± SD over the 3 shift models:
+
+| Detector | Family | AUROC | AUROC without class-mix weights | FPR at 95 % TPR |
+|---|---|---|---|---|
+| max-softmax | output | 0.650 ± 0.046 | 0.705 | 0.796 ± 0.033 |
+| entropy | output | 0.661 ± 0.057 | 0.720 | 0.798 ± 0.030 |
+| energy | output | 0.680 ± 0.087 | 0.739 | 0.821 ± 0.055 |
+| Mahalanobis (class means, tied covariance) | embedding | 0.741 ± 0.032 | 0.793 | 0.795 ± 0.037 |
+| relative Mahalanobis | embedding | 0.453 ± 0.079 | 0.486 | 0.900 ± 0.037 |
+| **kNN distance** (k = 10, normalised embedding) | embedding | **0.826 ± 0.036** | 0.812 | **0.606 ± 0.017** |
+
+- kNN is the best detector in all 3 seeds (by 0.06 to 0.14 over Mahalanobis, 0.15 to 0.20 over max-softmax). Mahalanobis beats max-softmax in all 3 seeds, in one of them only by 0.01. Energy varies a lot between seeds (0.59 to 0.76).
+- Part of the apparent detection by confidence comes from the class mix: BCN has fewer easy nevus images. Without class-mix weights max-softmax looks better (0.71 vs 0.65); kNN hardly changes (0.81 vs 0.83).
+- Distance in the embedding space is a better shift signal than confidence, as Step 3.3 suggested, but the gap to a classifier that has seen BCN (0.94) remains, and FPR at 95 % TPR is still 0.61. As a per-image gate it would reject most good images.
+- Relative Mahalanobis scores below chance here (0.45); I did not investigate why and did not tune it.
+- This is covariate shift (a new acquisition source). It says nothing about detecting unknown diagnoses; that would need a held-out-class experiment.
+
 ## Quickstart
 
 Docker (CPU, no GPU needed; runs the whole pipeline on fake data):
@@ -115,7 +137,7 @@ pip install -r requirements.txt
 make test            # unit tests
 make smoke-all       # everything on fake data
 # real data: see docs/DATA.md, then
-make data train eval-test calibration mc selective train-shift eval-shift shift drift   # train* run 3 seeds each
+make data train eval-test calibration mc selective train-shift eval-shift shift drift ood   # train* run 3 seeds each
 ```
 Windows (no `make`), in an activated virtual environment, CUDA build of PyTorch installed first (pytorch.org):
 ```bat
@@ -130,13 +152,14 @@ python -m reliable_derm.explain.gradcam --ckpt runs\baseline\best.pt --split tes
 python -m reliable_derm.train --config configs\shift.yaml
 python -m reliable_derm.shift
 python -m reliable_derm.drift --ckpt runs\shift\best.pt
+python -m reliable_derm.ood
 ```
 Training takes about 33 s/epoch on an RTX 3070 Laptop GPU.
 
 ## Repository layout
 ```
 reliable_derm/   data/ (prepare, splits), train, evaluate, calibration, mc_dropout, uncertainty,
-                 selective, shift, drift, explain/ (gradcam, sanity, shap_explain)
+                 selective, shift, drift, ood, explain/ (gradcam, sanity, shap_explain)
 configs/         baseline.yaml, shift.yaml
 tests/           unit tests (leakage, metrics, uncertainty, explanations, shift, drift)
 reports/         NOTES.md (full log), result tables
@@ -158,5 +181,6 @@ not redistributed. Attribution and references: `docs/DATA.md` (HAM10000 [1], MSK
 - Rare classes (DF, VASC, SCC) have few test images; their numbers are noisy.
 - The ensemble has one instance (3 seeds), so it has no spread estimate.
 - Explanation checks use small samples (16 and 32 images, one model) and are not validated against clinical annotations.
+- OOD detection was evaluated on one source pair with default settings (k = 10, no tuning). It covers covariate shift only, not unknown diagnoses.
 - Drift flags mean "the data changed", not "accuracy will drop by X".
 - Not a medical device; research code only.

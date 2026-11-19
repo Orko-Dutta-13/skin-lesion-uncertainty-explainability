@@ -4,7 +4,7 @@ RUNS  = runs/baseline runs/baseline_s1 runs/baseline_s2
 SHIFT = runs/shift runs/shift_s1 runs/shift_s2
 
 .PHONY: install test smoke smoke-uncertainty smoke-shift smoke-all data train eval-val eval-test gradcam \
-        calibration mc selective split-ood train-shift eval-shift shift drift
+        calibration mc selective split-ood train-shift eval-shift shift drift ood
 
 install:
 	pip install -r requirements.txt
@@ -30,6 +30,7 @@ smoke-shift: smoke
 	python -m reliable_derm.evaluate --ckpt runs/smoke_shift/best.pt --split shift_test --split-col split_ood --device cpu
 	python -m reliable_derm.shift --run-dirs runs/smoke_shift --oracle-dirs runs/smoke --n-boot 50 --out reports/smoke/shift
 	python -m reliable_derm.drift --ckpt runs/smoke_shift/best.pt --n 30 --out reports/smoke/drift --device cpu
+	python -m reliable_derm.ood --run-dirs runs/smoke_shift --k 3 --out reports/smoke/ood --shift-dir reports/smoke/shift --drift-dir reports/smoke/drift --device cpu
 smoke-all: smoke-uncertainty smoke-shift
 
 # ---- real data (docs/DATA.md first) --------------------------------------------------------------------------
@@ -67,3 +68,5 @@ shift:
 	python -m reliable_derm.shift
 drift:
 	python -m reliable_derm.drift --ckpt runs/shift/best.pt
+ood:
+	python -m reliable_derm.ood

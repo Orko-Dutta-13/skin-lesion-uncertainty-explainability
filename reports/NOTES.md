@@ -137,8 +137,29 @@ Protocol `split_ood` (data/splits.py `add_ood_split`): train/val/test = HAM + MS
 ## Step 3.4: Docker (done)
 `docker build -t reliable-derm .` (python:3.11-slim, CPU torch) then `docker run --rm reliable-derm` runs `make smoke-all` (fake data: prepare, train, evaluate, Grad-CAM, calibration, MC Dropout, selective, shift split, shift eval, drift) end to end without error on a Windows machine (Docker Desktop), 2026-11-18. A fresh clone of the GitHub repo also passes `make smoke-all` and all 73 unit tests. Smoke numbers are meaningless (284 fake images, 2 epochs).
 
+## Step 3.5: per-image OOD detection (done)
+`python -m reliable_derm.ood` (3 shift models `runs/shift`, `_s1`, `_s2`). Detectors fitted on the 9,226 ID training images (HAM+MSK) only; scored on 1,846 ID test images (re-weighted to the BCN class mix) and 12,414 BCN images; AUROC with BCN = positive. Embedding = 1280-d penultimate feature. Figure: `docs/figures/ood_overview.png`; tables: `reports/ood/`.
+
+| Detector | AUROC (mean ± SD, 3 seeds) | AUROC unweighted | FPR at 95 % TPR |
+|---|---|---|---|
+| max-softmax | 0.650 ± 0.046 | 0.705 | 0.796 ± 0.033 |
+| entropy | 0.661 ± 0.057 | 0.720 | 0.798 ± 0.030 |
+| energy | 0.680 ± 0.087 | 0.739 | 0.821 ± 0.055 |
+| Mahalanobis (tied shrinkage covariance) | 0.741 ± 0.032 | 0.793 | 0.795 ± 0.037 |
+| relative Mahalanobis | 0.453 ± 0.079 | 0.486 | 0.900 ± 0.037 |
+| kNN distance (k = 10) | 0.826 ± 0.036 | 0.812 | 0.606 ± 0.017 |
+
+Per seed (weighted AUROC): msp 0.613 / 0.634 / 0.702; energy 0.589 / 0.689 / 0.762; Mahalanobis 0.729 / 0.777 / 0.716; kNN 0.785 / 0.837 / 0.855. For reference: ensemble max-prob with TS 0.669 (Step 3.2); domain classifier trained with BCN 0.942 (Step 3.3).
+
+- kNN is best in every seed (+0.056 / +0.060 / +0.139 over Mahalanobis; +0.172 / +0.203 / +0.153 over msp). Mahalanobis beats msp in every seed, in seed 2 by only 0.014. Energy is very seed dependent.
+- Class mix matters for the output scores: unweighted AUROC of msp 0.705 vs weighted 0.650 (BCN has fewer easy NV images). kNN barely changes (0.812 vs 0.826).
+- Reading: feature-space distance flags the new source better than confidence (0.83 vs 0.65 to 0.68), but it stays well below a domain classifier that has seen BCN (0.94), and at 95 % TPR it still flags 61 % of ID images, so it is not a usable per-image gate.
+- Relative Mahalanobis is below chance (0.45). Cause not investigated, not tuned.
+- Caveats: one source pair; k and covariance shrinkage at defaults; 3 seeds; this is covariate shift (acquisition), not detection of unknown diagnoses (not tested); ID test set is small for rare classes, so class weights for them are noisy.
+
 ## Future work
 - Head-only MC Dropout (`--mode head`) vs the full stochastic mode.
 - Bootstrap confidence intervals for per-class metrics (DF, VASC, SCC).
+- Semantic OOD: hold out one diagnosis (for example DF or VASC), retrain, and test whether the detectors flag it as unknown.
 - Check whether the black circular border drives Grad-CAM / SHAP maps; SHAP randomisation check.
 - Shift: class mix is handled by reweighting (metrics) and class-matched sampling (drift), and BCN also appears harder than a fair reference (see 3.2). Not done: other source pairs, drift on a model trained on all sources.
